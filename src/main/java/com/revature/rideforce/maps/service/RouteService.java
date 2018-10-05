@@ -14,6 +14,7 @@ import com.google.maps.model.DirectionsLeg;
 import com.google.maps.model.DirectionsRoute;
 import com.google.maps.model.TravelMode;
 import com.revature.rideforce.maps.beans.Route;
+import com.revature.rideforce.maps.exceptions.ServiceAddressException;
 
 /**
  * The route service
@@ -35,23 +36,41 @@ public class RouteService {
 	 * @param origin
 	 * @param destination
 	 * @return Route
+	 * @throws ServiceAddressException 
 	 */
-	public Route getRoute(String origin, String destination) {
-		try {
-			DirectionsRoute route = DirectionsApi.getDirections(geoApiContext, origin, destination)
-					.mode(TravelMode.DRIVING).await().routes[0];
+	public Route getRoute(String origin, String destination) throws ServiceAddressException {
+		
+		if(origin.charAt(0)=='-') {
+			throw new ServiceAddressException();
+//			return null;
+		}
+		
+			DirectionsRoute route;
+			try {
+				route = DirectionsApi.getDirections(geoApiContext, origin, destination)
+						.mode(TravelMode.DRIVING).await().routes[0];
+			
 			long distance = 0;
 			long duration = 0;
 
 			for (DirectionsLeg leg : route.legs) {
 				distance += leg.distance.inMeters;
-				duration += leg.duration.inSeconds;
-			}
+				duration += leg.duration.inSeconds;}
+			
 			return new Route(distance, duration);
-		} catch (ApiException | InterruptedException | IOException e) {
-			log.error("Unexpected exception when fetching route.", e);
-			Thread.currentThread().interrupt();
+			
+			}catch (ApiException | InterruptedException | IOException e) {
+				e.printStackTrace();
+			}
 			return null;
 		}
+	
+//			catch (ApiException | InterruptedException | IOException e) {
+//			log.error("Unexpected exception when fetching route.", e);
+//			Thread.currentThread().interrupt();
+//			return null;
+//		}
+	
+
 	}
-}
+

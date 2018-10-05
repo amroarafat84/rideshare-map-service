@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.revature.rideforce.maps.beans.ResponseError;
 import com.revature.rideforce.maps.beans.Route;
+import com.revature.rideforce.maps.exceptions.ServiceAddressException;
 import com.revature.rideforce.maps.service.RouteService;
 
 /**
@@ -35,15 +36,16 @@ public class RouteController {
 	 * @param start
 	 * @param end
 	 * @return ResponseEntity<?> (either ResponseError or ResponseEntity<Route> depending on validity of input)
+	 * @throws ServiceAddressException 
 	 */
 	@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<?> get(@RequestParam String start, @RequestParam String end) {
+	public ResponseEntity<?> get(@RequestParam String start, @RequestParam String end) throws ServiceAddressException {
 		if (start.isEmpty()) {
 			return new ResponseError("Must specify a start address.").toResponseEntity(HttpStatus.BAD_REQUEST);
 		}
 		if (end.isEmpty()) {
 			return new ResponseError("Must specify a end address.").toResponseEntity(HttpStatus.BAD_REQUEST);
 		}
-		return new ResponseEntity<Route>(routeService.getRoute(start, end), HttpStatus.OK);
+		return new ResponseEntity<>(routeService.getRoute(start, end), HttpStatus.OK);
 	}
 }
