@@ -1,8 +1,9 @@
 package com.revature.rideforce.maps.controllers;
 
-import java.util.logging.Logger;
+
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,7 +27,8 @@ import com.revature.rideforce.maps.service.RouteService;
 @RestController
 @RequestMapping(value = "/route")
 public class RouteController {
-	
+	private static final Logger log = LoggerFactory.getLogger(RouteController.class);
+
 	/**
 	 * Injecting the RouteService spring bean
 	 * @Autowired
@@ -44,19 +46,23 @@ public class RouteController {
 	@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<?> get(@RequestParam String start, @RequestParam String end) throws Exception{
 		if (start.isEmpty()) {
+			log.warn("User attempted to retrieve a route without a start address");
 			return new ResponseError("Must specify a start address.").toResponseEntity(HttpStatus.BAD_REQUEST);
 		}
 		if (end.isEmpty()) {
+			log.warn("User attempted to retrieve a route without an end address");
 			return new ResponseError("Must specify a end address.").toResponseEntity(HttpStatus.BAD_REQUEST);
 		}
 		
 		
 		 if(start.matches("-?\\d+(\\.\\d+)?")){
+			 log.warn("User attempted to retrieve a route with a negative start address");
 			 return new ResponseError("Can't input negative numbers.").toResponseEntity(HttpStatus.BAD_REQUEST);
 
 		 }
 
 		 if(end.matches("-?\\d+(\\.\\d+)?")){
+			 log.warn("User attempted to retrieve a route with a negative ending address");
 			 return new ResponseError("Can't input negative numbers.").toResponseEntity(HttpStatus.BAD_REQUEST);
 
 		 }
@@ -78,7 +84,7 @@ public class RouteController {
 		if(end.matches("^.*[^\\w]$")) {
 			end = end.substring(0, last1);
 			}
-		
+		log.info(String.format("Proper starting and ending address submitted, route with the following info returned: %n starting address: %s; destination address: %s",start,end));
 		return new ResponseEntity<Route>(routeService.getRoute(start, end), HttpStatus.OK);
 	}
 	

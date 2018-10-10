@@ -43,6 +43,7 @@ public class LocationController {
 	@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<?> get(@RequestParam String address) {
 		if (address.isEmpty()) {
+			log.warn("User attemped to request a location with out a starting address");
 			return new ResponseError("Must specify an address.").toResponseEntity(HttpStatus.BAD_REQUEST);
 		}
 		address = address.trim();
@@ -59,6 +60,7 @@ public class LocationController {
 			if(numCheck != 5) {
 				String message= String.format("numcheck = %d", numCheck);
 				log.info(message);
+				log.warn(String.format("Address cannot be a number that is not a Zip code, address entered: %s", address));
 				return new ResponseError("Address cannot be a number that is not a Zip code.").toResponseEntity(HttpStatus.BAD_REQUEST);
 			}	
 		}
